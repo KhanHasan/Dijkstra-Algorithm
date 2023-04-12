@@ -1,0 +1,16 @@
+Installation Manual
+
+cd into Dijskstra directory
+run:
+npm install
+npm start
+
+Names and Student No.
+
+Amirali Najafizadeh 500945716
+Arash Amini, 501064182
+Jasdeep Sekhon, 501006972
+Hasan Khan, 50096762194.05
+Hadi Awan, 501054141
+Mohamed Issa, 501046508
+94.0594.0594.05
