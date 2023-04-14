@@ -82,12 +82,16 @@ const DnDFlow = () => {
   // This print function prints the graphs for the solution for distance vector
   function printSolutionDistanceVector(dist, dv) {
     let V = id;
+    //Header for first Table
     let dataOutput = "Vertex \t Distance from Source \n";
+    //Printing Shortest Distance from Source to Destination
     for(let i = 0; i < V; i++) {
       dataOutput += (i + " \t\t " + dist[i] + "\n");
     }
+    //Header for second table
     dataOutput += "\nDistance Vector Routing Table\n\n \t";
     
+    //Iterate through dv to print out the routing table
     let len = Object.keys(dv).length;
     for (let i = 0; i<len; i++){
       dataOutput+= (Object.keys(dv)[i] + "\t");
@@ -96,13 +100,14 @@ const DnDFlow = () => {
     for(let i = 0; i < len; i++){
       dataOutput+= (Object.keys(dv)[i] + "\t");
         for(let j = 0; j < len; j++){
-          if (i==j){
+          if (i==j){ //if Node i and j are the same the distance is 0
             dataOutput += ("0"+ "\t")
           }
-          
+          //if Node i and j have no edge between them set to "∞"
           else if (dv[i][j] == undefined || dv[i][j] == "Infinity")
             dataOutput += ("∞"+ "\t")
           else
+            //Print Edge Weight
             dataOutput += (dv[i][j]+ "\t")
         }
       dataOutput+= ("\n");
@@ -150,13 +155,14 @@ const DnDFlow = () => {
 };
 
 function distance_vector(network, max_iterations=100) {
-  // Initialize distance vector for each node
+  // Initialize distance vector for each node from network
   let distance_vectors = {};
   for (let node in network) {
     distance_vectors[node] = {};
     for (let neighbour in network[node]) {
       distance_vectors[node][neighbour] = network[node][neighbour];
     }
+    //If edge doesn't exist, set the edge weight to Infinity
     for (let other_node in network) {
       if (other_node != node && !(other_node in network[node])) {
         distance_vectors[node][other_node] = Infinity;
@@ -164,7 +170,7 @@ function distance_vector(network, max_iterations=100) {
     }
   }
 
-  // Iteratively update distance vectors
+  // Iteratively update distance vectors if there's a shorter distance
   for (let i = 0; i < max_iterations; i++) {
     let converged = true;
     for (let node in network) {
@@ -193,13 +199,20 @@ function distance_vector(network, max_iterations=100) {
 };
 
 function create_network(arr){
+  // Converting a 2D Array into a Nested Dictionary
+  //nodes[node1][node2] -> Edge Weight
   let nodes = {}
+  // Iterate through the 2D Array
   for (let i = 0; i < arr.length; i++) {
+    //Indices represent the Nodes
     let edges = {}
     for (let j = 0; j < arr[i].length; j++) {
+      //Indices represent the neighbouring Nodes
       if (arr[i][j] !== 0)
+        //Assign the Index as the Key and the Edge Weight as the Value
         edges[j] = arr[i][j]
     }
+    //Assign the Index to a Dictionary
     nodes[i] = edges
   }
   return nodes;
