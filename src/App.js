@@ -14,11 +14,14 @@ import Sidebar from './Sidebar';
 import './index.css';
 
 import { initialEdges, initialNodes } from './nodes-and-edges';
-import { isArrayLikeObject } from 'lodash';
 
+// Node ID values
 let id = 0;
+
+// Function to get node Id values
 const getId = () => `${id++}`;
 
+// The node drag and drop function
 const DnDFlow = () => {
   const reactFlowWrapper = useRef(null);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -27,27 +30,40 @@ const DnDFlow = () => {
   const [algoResultDijkstra, setAlgoResultDijkstra] = useState(null);
   const [algoResultDistanceVector, setAlgoResultDistanceVector] = useState(null);
 
+  // Connecting edges between nodes
   const onConnect = useCallback(
     (params) => setEdges((eds) => addEdge(params, eds)), [] 
   );
 
+  // Code that gets kicked off when the run button is pressed
+  // Both Dijkstra and distance vector algorithms get run
   const onRunButtonClick = () => {
     let edges = reactFlowInstance.getEdges();
+
+    // Set empty edge weights to the default of 1
     for(let i = 0; i < edges.length; i++) {
       if(!edges[i].label){
         edges[i].label = 1;
         reactFlowInstance.setEdges(edges);
       }
     }
-    let arr = createGrid();
-    let {adjacencyMatrix, startNode} = arr;
+    let edgesNodesArray = createGrid();
+    let {adjacencyMatrix, startNode} = edgesNodesArray;
+
+    // Calls dijsktra algorithm and passes adjacency matrix and starting node
     dijkstra(adjacencyMatrix, startNode);
+
+    // Call distance vector and calculates distance between nodes
     let network = create_network(adjacencyMatrix);
     let dv = distance_vector(network);
     let dist = calculate_distance(adjacencyMatrix, startNode);
+
+    // Print distance vector results 
     printSolutionDistanceVector(dist, dv);
   };
 
+  // Function finds the vertex with the minimum distance value
+  // from the vertices not included in the tree
   function minDistance(dist, sptSet) {
     // initialize min value
     let min = Number.MAX_VALUE;
@@ -63,6 +79,7 @@ const DnDFlow = () => {
     return min_index;
   };
 
+  // This print function prints the graphs for the solution for distance vector
   function printSolutionDistanceVector(dist, dv) {
     let V = id;
     let dataOutput = "Vertex \t Distance from Source \n";
@@ -90,9 +107,11 @@ const DnDFlow = () => {
         }
       dataOutput+= ("\n");
     }
+    // set the algoResult value for it to be updated in dataOutput on sidebar
     setAlgoResultDistanceVector(dataOutput);
   };
 
+  // Used in distance vector algorithm to calculate the distance between nodes
   function calculate_distance(graph, src) {
     let V = id;
     let dist = new Array(V);
@@ -269,6 +288,7 @@ function create_network(arr){
     setAlgoResultDijkstra(result);
   };
 
+  // Takes the edges and creates an nxn grid with adjacent edge values
   function createGrid(){
     var arr = new Array(id);
     for (var i = 0; i < arr.length; i++) {
@@ -277,6 +297,7 @@ function create_network(arr){
 
     let edges = reactFlowInstance.getEdges();
 
+    // for each edge, get the source, target and edge value
     for(let i = 0; i < edges.length; i++) {
       // console.log(edges[i].source + " " + edges[i].target + " " + edges[i].label);
       let source = parseInt(edges[i].source);
@@ -287,6 +308,7 @@ function create_network(arr){
         val = 1;
       }
 
+      // update grid with edge weight
       arr[source][target] = val;
       arr[target][source] = val;
 
@@ -300,16 +322,21 @@ function create_network(arr){
     
 }
 
+  // When update button is pressed, update edge value
   const onUpdateButtonClick = (param) => {
     let edges = reactFlowInstance.getEdges();
     for(let i = 0; i < edges.length; i++){
+      // check if it is the matching edge that is selected
       if (edges[i].selected){
+        // reset the label value for that edge
         edges[i].label = param;
+        // Set a new edge with the new value
         reactFlowInstance.setEdges(edges);
       }
     }
   }
     
+  // The drag over function allows for nodes to be selected and shifted
   const onDragOver = useCallback((event) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
@@ -317,6 +344,7 @@ function create_network(arr){
 
   var myList = new Array();
 
+  // Function to create nodes by dragging and dropping them from sidebar
   const onDrop = useCallback(
     (event) => {
       event.preventDefault();
@@ -329,11 +357,13 @@ function create_network(arr){
         return;
       }
 
+        // Update X and Y coordinates of node dropped
       const position = reactFlowInstance.project({
         x: event.clientX - reactFlowBounds.left,
         y: event.clientY - reactFlowBounds.top,
       });
 
+      // Default node information
       const nodeDefaults = {
         sourcePosition: Position.Right,
         targetPosition: Position.Left,
@@ -349,6 +379,7 @@ function create_network(arr){
         },
       };
 
+      // Node object that is created on each node that is dropped
       const newNode = {
         id: getId(),
         type,
@@ -357,6 +388,7 @@ function create_network(arr){
         ...nodeDefaults,
       };
 
+      // Set the nodes and add them to a list
       setNodes((nds) => nds.concat(newNode));
       myList.push(newNode);
       

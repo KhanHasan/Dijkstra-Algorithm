@@ -1,5 +1,6 @@
 import { Position } from 'reactflow';
 
+// Set default node values
 const nodeDefaults = {
   sourcePosition: Position.Right,
   targetPosition: Position.Left,
